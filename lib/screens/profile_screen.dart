@@ -1,227 +1,363 @@
-// screens/profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'dashboard_screen.dart';
+import 'profile_features_screen.dart';
+import 'streak_screen.dart';
+import 'subscription_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String userName = "Alex Chen";
-  String userEmail = "alexchen@gmail.com";
-  String? profileImagePath; // For future real image upload
+  final _picker = ImagePicker();
+  Uint8List? _profileImage;
+  bool _pickingImage = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F5EE),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5EE),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          "Profile",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-
-              // Profile Picture with Upload
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 65,
-                      backgroundColor: const Color(0xFFEE7A7A),
-                      backgroundImage: profileImagePath != null 
-                          ? AssetImage(profileImagePath!) 
-                          : null,
-                      child: profileImagePath == null 
-                          ? const Icon(Icons.person, size: 80, color: Colors.white)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: _showImageSourceOptions,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEE7A7A),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-              Text(userName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              Text(userEmail, style: const TextStyle(fontSize: 16, color: Colors.black54)),
-
-              const SizedBox(height: 40),
-
-              // Stats
-              Row(
-                children: [
-                  _buildStatCard("Current Level", "N5", "Intermediate"),
-                  const SizedBox(width: 12),
-                  _buildStatCard("Streak", "12", "Days"),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _buildStatCard("Lessons Done", "47", ""),
-                  const SizedBox(width: 12),
-                  _buildStatCard("Kanji Mastered", "89", ""),
-                ],
-              ),
-
-              const SizedBox(height: 40),
-
-              // Menu Sections
-              _buildMenuTile(Icons.emoji_events_outlined, "Achievements", "View your badges & milestones"),
-              _buildMenuTile(Icons.history, "Learning History"),
-              _buildMenuTile(Icons.bookmark_border, "Bookmarks"),
-              _buildMenuTile(Icons.settings, "Settings"),
-              _buildMenuTile(Icons.help_outline, "Help & Support"),
-              _buildMenuTile(Icons.share, "Share App"),
-
-              const SizedBox(height: 40),
-
-              // Logout
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFEE7A7A)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text(
-                    "Logout",
-                    style: TextStyle(fontSize: 17, color: Color(0xFFEE7A7A), fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
+  Future<void> _pickImage(ImageSource source) async {
+    Navigator.pop(context);
+    setState(() => _pickingImage = true);
+    try {
+      final image = await _picker.pickImage(
+        source: source,
+        imageQuality: 82,
+        maxWidth: 1200,
+      );
+      if (image == null) return;
+      final bytes = await image.readAsBytes();
+      if (!mounted) return;
+      setState(() => _profileImage = bytes);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profile photo updated')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not open that image source. Please try another option.',
           ),
         ),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 3,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              (route) => false,
-            );
-          }
-        },
-        selectedItemColor: const Color(0xFFEE7A7A),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.school_rounded), label: "Learn"),
-          BottomNavigationBarItem(icon: Icon(Icons.quiz_rounded), label: "Quiz"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), label: "Profile"),
-        ],
-      ),
-    );
+      );
+    } finally {
+      if (mounted) setState(() => _pickingImage = false);
+    }
   }
 
-  Widget _buildStatCard(String title, String value, String subtitle) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10)],
-        ),
+  void _showImageSourceOptions() {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFFEE7A7A))),
-            if (subtitle.isNotEmpty)
-              Text(subtitle, style: const TextStyle(fontSize: 13)),
+            const ListTile(
+              title: Text(
+                'Update profile photo',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              onTap: () => _pickImage(ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a photo'),
+              onTap: () => _pickImage(ImageSource.camera),
+            ),
+            if (_profileImage != null)
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.redAccent,
+                ),
+                title: const Text('Remove photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _profileImage = null);
+                },
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuTile(IconData icon, String title, [String? subtitle]) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      leading: Icon(icon, color: Colors.black87, size: 28),
-      title: Text(title, style: const TextStyle(fontSize: 17)),
-      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(color: Colors.black54)) : null,
-      trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
-      onTap: () {
-        // TODO: Add navigation for each section
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$title tapped")),
-        );
-      },
+  void _open(Widget page) =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+
+  @override
+  Widget build(BuildContext context) {
+    final menuItems =
+        <({IconData icon, String title, String subtitle, VoidCallback action})>[
+          (
+            icon: Icons.emoji_events_outlined,
+            title: 'Achievements',
+            subtitle: 'Badges and milestones',
+            action: () => _open(const AchievementsScreen()),
+          ),
+          (
+            icon: Icons.history_rounded,
+            title: 'Learning history',
+            subtitle: 'Your recent study activity',
+            action: () => _open(const LearningHistoryScreen()),
+          ),
+          (
+            icon: Icons.bookmark_border_rounded,
+            title: 'Bookmarks',
+            subtitle: 'Saved words and grammar',
+            action: () => _open(const BookmarksScreen()),
+          ),
+          (
+            icon: Icons.settings_outlined,
+            title: 'Settings',
+            subtitle: 'Goals, reminders, and display',
+            action: () => _open(const SettingsScreen()),
+          ),
+          (
+            icon: Icons.help_outline_rounded,
+            title: 'Help & support',
+            subtitle: 'Answers and contact information',
+            action: _showHelp,
+          ),
+          (
+            icon: Icons.share_outlined,
+            title: 'Share app',
+            subtitle: 'Invite a Japanese study friend',
+            action: _shareApp,
+          ),
+        ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Profile',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 63,
+                        backgroundColor: const Color(0xFFE96F72),
+                        backgroundImage: _profileImage == null
+                            ? null
+                            : MemoryImage(_profileImage!),
+                        child: _profileImage == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 74,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: IconButton.filled(
+                          tooltip: 'Update profile photo',
+                          onPressed: _pickingImage
+                              ? null
+                              : _showImageSourceOptions,
+                          icon: _pickingImage
+                              ? const SizedBox.square(
+                                  dimension: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.camera_alt_outlined),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Alex Chen',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  const Text(
+                    'alexchen@gmail.com',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 28),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 650 ? 4 : 2;
+                      const stats = [
+                        ('N5', 'Current level'),
+                        ('12', 'Day streak'),
+                        ('47', 'Lessons done'),
+                        ('89', 'Kanji mastered'),
+                      ];
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: stats.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisExtent: 118,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemBuilder: (context, index) => Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  stats[index].$1,
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFE96F72),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  stats[index].$2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  Card(
+                    child: Column(
+                      children: [
+                        for (
+                          var index = 0;
+                          index < menuItems.length;
+                          index++
+                        ) ...[
+                          ListTile(
+                            leading: Icon(menuItems[index].icon),
+                            title: Text(
+                              menuItems[index].title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(menuItems[index].subtitle),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: menuItems[index].action,
+                          ),
+                          if (index != menuItems.length - 1)
+                            const Divider(height: 1, indent: 56),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Log out'),
+                      onPressed: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DashboardScreen(),
+                        ),
+                        (_) => false,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 3,
+        onDestinationSelected: (index) {
+          if (index == 0) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              (_) => false,
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const StreakScreen()),
+            );
+          }
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+          NavigationDestination(
+            icon: Icon(Icons.workspace_premium_outlined),
+            label: 'Premium',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.local_fire_department_outlined),
+            label: 'Streak',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 
-  void _showImageSourceOptions() {
-    showModalBottomSheet(
+  void _showHelp() {
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text("Choose from Gallery"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Add image_picker later
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Gallery feature coming soon")),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Take a Photo"),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Camera feature coming soon")),
-                  );
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Help & support'),
+        content: const Text(
+          'Choose a JLPT level from Home, open a unit, and use Learn or Review.\n\nFor support, email support@tomonihongo.app.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  Future<void> _shareApp() async {
+    await Clipboard.setData(
+      const ClipboardData(text: 'Study Japanese with Tomo Nihongo!'),
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invitation copied to clipboard')),
     );
   }
 }

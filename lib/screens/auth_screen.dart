@@ -1,6 +1,6 @@
 // screens/auth_screen.dart
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';   // ← Make sure this import is correct
+import 'dashboard_screen.dart'; // ← Make sure this import is correct
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -41,11 +41,7 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo / Title Section
-                const Icon(
-                  Icons.language,
-                  size: 80,
-                  color: Color(0xFFEE7A7A),
-                ),
+                const Icon(Icons.language, size: 80, color: Color(0xFFEE7A7A)),
                 const SizedBox(height: 16),
                 const Text(
                   "Tomo Nihongo",
@@ -59,10 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 const SizedBox(height: 8),
                 const Text(
                   "Your Japanese learning friend",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -97,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -118,8 +111,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? "Name is required" : null,
+                            validator: (value) => value?.isEmpty ?? true
+                                ? "Name is required"
+                                : null,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -135,8 +129,12 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                           ),
                           validator: (value) {
-                            if (value?.isEmpty ?? true) return "Email is required";
-                            if (!value!.contains('@')) return "Enter valid email";
+                            if (value?.isEmpty ?? true) {
+                              return "Email is required";
+                            }
+                            if (!value!.contains('@')) {
+                              return "Enter valid email";
+                            }
                             return null;
                           },
                         ),
@@ -157,15 +155,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                 color: Colors.grey,
                               ),
                               onPressed: () {
-                                setState(() => _obscurePassword = !_obscurePassword);
+                                setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                );
                               },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          validator: (value) =>
-                              (value?.length ?? 0) < 6 ? "Password must be at least 6 characters" : null,
+                          validator: (value) => (value?.length ?? 0) < 6
+                              ? "Password must be at least 6 characters"
+                              : null,
                         ),
                         const SizedBox(height: 16),
 
@@ -185,7 +186,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: Colors.grey,
                                 ),
                                 onPressed: () {
-                                  setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                                  setState(
+                                    () => _obscureConfirmPassword =
+                                        !_obscureConfirmPassword,
+                                  );
                                 },
                               ),
                               border: OutlineInputBorder(
@@ -193,7 +197,9 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value?.isEmpty ?? true) return "Please confirm your password";
+                              if (value?.isEmpty ?? true) {
+                                return "Please confirm your password";
+                              }
                               if (value != _passwordController.text) {
                                 return "Passwords do not match";
                               }
@@ -257,7 +263,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             Expanded(child: Divider()),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Text("OR", style: TextStyle(color: Colors.grey)),
+                              child: Text(
+                                "OR",
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             ),
                             Expanded(child: Divider()),
                           ],
@@ -288,7 +297,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      isLogin ? "Don't have an account? " : "Already have an account? ",
+                      isLogin
+                          ? "Don't have an account? "
+                          : "Already have an account? ",
                       style: const TextStyle(color: Colors.black54),
                     ),
                     GestureDetector(

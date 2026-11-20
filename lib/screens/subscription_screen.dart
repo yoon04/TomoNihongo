@@ -1,6 +1,8 @@
 // screens/subscription_screen.dart
 import 'package:flutter/material.dart';
 import 'dashboard_screen.dart';
+import 'profile_screen.dart';
+import 'streak_screen.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -28,7 +30,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         backgroundColor: const Color(0xFFF8F5EE),
         elevation: 0,
         centerTitle: true,
-        title: const Text("Subscription", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Subscription",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -47,24 +52,57 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.workspace_premium, color: Colors.white, size: 70),
+                      const Icon(
+                        Icons.workspace_premium,
+                        color: Colors.white,
+                        size: 70,
+                      ),
                       const SizedBox(height: 12),
-                      const Text("Premium Member", style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+                      const Text(
+                        "Premium Member",
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text("Subscribed to $planType Plan", style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                      Text(
+                        "Subscribed to $planType Plan",
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
                       const SizedBox(height: 16),
-                      Text("Purchased on: $purchaseDate", style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        "Purchased on: $purchaseDate",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       const SizedBox(height: 8),
-                      Text("$remainingDays days remaining", style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+                      Text(
+                        "$remainingDays days remaining",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 30),
               ],
 
-              const Text("Choose your plan", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const Text(
+                "Choose your plan",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              const Text("Cancel anytime • No hidden fees", style: TextStyle(color: Colors.black54)),
+              const Text(
+                "Cancel anytime • No hidden fees",
+                style: TextStyle(color: Colors.black54),
+              ),
 
               const SizedBox(height: 24),
 
@@ -92,7 +130,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
               const SizedBox(height: 40),
 
-              const Text("What you'll get:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "What you'll get:",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
               _buildFeature("Unlimited access to all lessons & quizzes"),
               _buildFeature("Advanced Kanji, Grammar & Vocabulary"),
@@ -113,6 +154,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               MaterialPageRoute(builder: (_) => const DashboardScreen()),
               (route) => false,
             );
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const StreakScreen()),
+            );
+          } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
           }
         },
         selectedItemColor: const Color(0xFFEE7A7A),
@@ -120,10 +171,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.workspace_premium), label: "Subscription"),
-          BottomNavigationBarItem(icon: Icon(Icons.local_fire_department_rounded), label: "Streak"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), label: "Profile"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: "Dashboard",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.workspace_premium),
+            label: "Premium",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_fire_department_rounded),
+            label: "Streak",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded),
+            label: "Profile",
+          ),
         ],
       ),
     );
@@ -152,7 +215,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             color: isSelected ? const Color(0xFFEE7A7A) : Colors.transparent,
             width: 2.5,
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12)],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,18 +229,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               const Align(
                 alignment: Alignment.topRight,
                 child: Chip(
-                  label: Text("Best Value", style: TextStyle(color: Colors.white, fontSize: 12)),
+                  label: Text(
+                    "Best Value",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
                   backgroundColor: Color(0xFFEE7A7A),
                 ),
               ),
-            Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(price, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+                Text(
+                  price,
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(width: 6),
-                Text("MMK /$period", style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                Text(
+                  "MMK /$period",
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -183,10 +266,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               child: ElevatedButton(
                 onPressed: () => _showConfirmationDialog(title),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isSelected ? const Color(0xFFEE7A7A) : Colors.black87,
+                  backgroundColor: isSelected
+                      ? const Color(0xFFEE7A7A)
+                      : Colors.black87,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text("Subscribe Now", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                child: const Text(
+                  "Subscribe Now",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ],
@@ -200,7 +288,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Subscribe to $plan Plan?"),
-        content: Text("You are about to subscribe to the $plan plan.\n\nPrice: ${plan == "Monthly" ? monthlyPrice : yearlyPrice} MMK"),
+        content: Text(
+          "You are about to subscribe to the $plan plan.\n\nPrice: ${plan == "Monthly" ? monthlyPrice : yearlyPrice} MMK",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -211,7 +301,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               Navigator.pop(context);
               _processPayment(plan);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEE7A7A)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEE7A7A),
+            ),
             child: const Text("Confirm & Pay"),
           ),
         ],
@@ -237,6 +329,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
 
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       Navigator.pop(context); // Close loading dialog
 
       setState(() {

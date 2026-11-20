@@ -1,208 +1,158 @@
-// screens/lessons_screen.dart
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
+import '../data/sample_lessons.dart';
+import '../models/lesson.dart';
+import '../theme/app_theme.dart';
 import 'kanji_unit_screen.dart';
 import 'review_kanji_unit_screen.dart';
-import 'streak_screen.dart';
-import 'profile_screen.dart';
 
 class LessonsScreen extends StatefulWidget {
-  final String level;
-
   const LessonsScreen({super.key, required this.level});
-
+  final String level;
   @override
   State<LessonsScreen> createState() => _LessonsScreenState();
 }
 
 class _LessonsScreenState extends State<LessonsScreen> {
-  int _selectedCategoryIndex = 0;
-  final List<String> categories = ["Kanji", "Vocabulary", "Grammar"];
-
+  LessonCategory category = LessonCategory.kanji;
   @override
   Widget build(BuildContext context) {
+    final units = sampleUnits(widget.level, category);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5EE),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5EE),
-        elevation: 0,
-        centerTitle: true,
         title: Text(
-          "JLPT ${widget.level}",
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+          'JLPT ${widget.level}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Category Tabs
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              color: const Color(0xFFF8F5EE),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: List.generate(categories.length, (index) {
-                    bool isSelected = _selectedCategoryIndex == index;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedCategoryIndex = index),
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFEE7A7A) : Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          categories[index],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected ? Colors.white : Colors.black87,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  child: SegmentedButton<LessonCategory>(
+                    segments: LessonCategory.values
+                        .map(
+                          (value) => ButtonSegment(
+                            value: value,
+                            label: Text(value.label),
+                          ),
+                        )
+                        .toList(),
+                    selected: {category},
+                    onSelectionChanged: (value) =>
+                        setState(() => category = value.first),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+                  child: Text(
+                    category.description,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: units.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final unit = units[index];
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: AppTheme.coral.withValues(
+                                      alpha: .14,
+                                    ),
+                                    foregroundColor: AppTheme.coral,
+                                    child: Text('${index + 1}'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          unit.title,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          unit.summary,
+                                          style: const TextStyle(
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    '${unit.cards.length} cards',
+                                    style: const TextStyle(
+                                      color: Colors.black45,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.play_arrow_rounded),
+                                    label: const Text('Learn'),
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => KanjiUnitScreen(
+                                          level: widget.level,
+                                          unitNumber: index + 1,
+                                          category: category,
+                                          unit: unit,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  OutlinedButton.icon(
+                                    icon: const Icon(Icons.refresh_rounded),
+                                    label: const Text('Review'),
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ReviewKanjiUnitScreen(
+                                          level: widget.level,
+                                          unitNumber: index + 1,
+                                          category: category,
+                                          unit: unit,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
-
-            // Units List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(20),
-                itemCount: 8,
-                itemBuilder: (context, index) {
-                  return _buildUnitCard(index + 1);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              (route) => false,
-            );
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const StreakScreen()));
-          } else if (index == 3) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-          }
-        },
-        selectedItemColor: const Color(0xFFEE7A7A),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.school_rounded), label: "Learn"),
-          BottomNavigationBarItem(icon: Icon(Icons.local_fire_department_rounded), label: "Streak"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), label: "Profile"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUnitCard(int unitNumber) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Unit $unitNumber",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _selectedCategoryIndex == 0
-                ? "Basic Kanji & Reading"
-                : _selectedCategoryIndex == 1
-                    ? "Daily Vocabulary"
-                    : "Grammar Patterns",
-            style: const TextStyle(color: Colors.black54),
-          ),
-          const SizedBox(height: 20),
-
-          // Learn & Review Buttons
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionButton(
-                  title: "Learn",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => KanjiUnitScreen(
-                          level: widget.level,
-                          unitNumber: unitNumber,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildActionButton(
-                  title: "Review",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ReviewKanjiUnitScreen(
-                          level: widget.level,
-                          unitNumber: unitNumber,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.black87, width: 1.5),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
           ),
         ),
       ),
